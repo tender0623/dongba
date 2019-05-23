@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jt.sys.dao.SysRoleDao">
+
+    <sql id="whereSqlId">
+        <where>
+            <if test="name!=null||name!=''">
+                name like concat("%",#{name},"%")
+            </if>
+        </where>
+    </sql>
+
+    <select id="findPageObjects" resultType="SysRole" parameterType="int">
+        select * from sys_roles
+       <include refid="whereSqlId"></include>
+        order by createdTime desc
+        limit #{startIndex},#{pageSize}
+    </select>
+    <!--统计记录数-->
+    <select id="getRowCount" resultType="int">
+        select count(*) from sys_roles
+        <include refid="whereSqlId"></include>
+    </select>
+
+    <delete id="deleteObject">
+          delete from sys_roles where id in
+          <foreach collection="ids" open="(" close=")" separator="," item="item">
+              ${item}
+          </foreach>
+    </delete>
+
+    <insert id="insertObject" parameterType="sysRole">
+        insert into sys_roles(id,name,note,createdTime,modifiedTime,createdUser,modifiedUser)
+         values (null,#{name},#{note},now(),now(),#{createdUser},#{modifiedUser})
+    </insert>
+
+    <select id="findObjectById" resultType="sysRole">
+        select * from sys_roles where id=#{id}
+    </select>
+
+
+    <update id="updateObject" parameterType="sysRole">
+        update sys_roles set name=#{name},note=#{note},modifiedTime=now(),
+        modifiedUser=#{modifiedUser} where id=${id}
+    </update>
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/util
+       http://www.springframework.org/schema/util/spring-util.xsd">
+    <!--自动扫描包-->
+    <context:component-scan base-package="com.jt"/>
+    <!--启用mvc注解-->
+    <mvc:annotation-driven/>
+    <!--定义转跳的文件的前后缀,视图模式配置-->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!--自动给后面action的方法return的字符串加上前后缀,变成一个可用的URL地址-->
+        <property name="prefix" value="/WEB-INF/pages/"/>
+        <property name="suffix" value=".html"/>
+    </bean>
+    <!--配置DRUID连接池-->
+    <util:properties id="cfg" location="classpath:config.properties"/>
+    <!--配置连接池-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          destroy-method="close" init-method="init" lazy-init="true">
+        <property name="driverClassName" value="#{cfg.driver}"/>
+        <property name="url" value="#{cfg.url}"/>
+        <property name="username" value="#{cfg.username}"/>
+        <property name="password" value="#{cfg.password}"/>
+
+    </bean>
+    <!--配置sqlsessionFactory-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!--自动扫描mapping.xml文件-->
+        <property name="mapperLocations" value="classpath*:mapper/sys/*Mapper.xml"/>
+    </bean>
+    <!--Mapper接口所在的包,spring会自动查找其下的Mapper-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.jt.**.dao"/>
+    </bean>
+</beans>

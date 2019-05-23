@@ -1,0 +1,105 @@
+<!-- Horizontal Form -->
+ <div class="box box-info">
+      <div class="box-header with-border">
+        <h3 class="box-title">添加角色</h3>
+      </div>
+      <!-- /.box-header -->
+      <!-- form start -->
+      <form class="form-horizontal">
+        <div class="box-body">
+          <div class="form-group">
+            <label for="nameId" class="col-sm-2 control-label">名称</label>
+
+            <div class="col-sm-10">
+              <input type="text" class="form-control" name="name" id="nameId" placeholder="名称">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="noteId" class="col-sm-2 control-label">描述</label>
+
+            <div class="col-sm-10">
+              <input type="text" class="form-control" name="note" id="noteId" placeholder="描述">
+            </div>
+          </div>
+          <div class="form-group">
+				<label class="col-sm-2 control-label">授权</label>
+				<div class="col-sm-10">
+						<ul id="menuTree" class="ztree"></ul>
+				</div>
+		  </div>
+        </div>
+        <!-- /.box-body -->
+        <div class="box-footer">
+          <button type="button" class="btn btn-default btn-cancel">Cancel</button>
+          <button type="button" class="btn btn-info pull-right btn-save">Save</button>
+        </div>
+        <!-- /.box-footer -->
+      </form>
+    </div>
+   <script type="text/javascript" src="bower_components/ztree/jquery.ztree.all.min.js"></script>
+    <script type="text/javascript">
+    $(function () {
+        $(".box-footer").on("click",".btn-cancel",doCancel).on("click",".btn-save",doSaveOrUpdate)
+        var id=$(".container-fluid").data("id");
+        console.log("id="+id);
+        //假如id有值则说明是更新,此时根据id进行记录查找
+        if(id){
+            doFindObjectById(id);
+        }
+    });
+    /**根据id查找角色对象,然后初始化页面*/
+    function doFindObjectById(id) {
+        var url="role/doFindObjectById.do";
+        var params={"id":id};
+        $.getJSON(url,params,function (result) {
+            doInitEditForm(result)
+        });
+    }
+    /**初始化页面*/
+    function doInitEditForm(result) {
+        $("#nameId").val(result.name);
+        $("#noteId").val(result.note);
+    }
+    function doCancel() {
+        $(".container-fluid").load("role/doRoleListUI.do");
+        $(".container-fluid").removeData("id");
+    }
+    function doSaveOrUpdate() {
+        //1.获取表单数据
+        var params = getFormData();
+        //2.把数据异步提交服务端
+        var insertUrl = "role/doSaveObject.do";
+        var updateUrl = "role/doUpdateObject.do";
+        //获取当前页面绑定的id值,假如id有值说明是修改,此时再参数中添加id值
+        var id = $(".container-fluid").data("id");
+        //根据id值设置要执行是url
+        if (id) params.id = id;
+        var url = id ? updateUrl : insertUrl;
+        $.post(url, params, function (result) {
+            if (result.state == 1) {
+                //退出当前页面
+                doCancel();
+            }
+            alert(result.message);
+        });
+    }
+        /**获取表单数据*/
+        function getFormData() {
+            var params={"name":$("#nameId").val(),
+            "note":$("#noteId").val()
+            };
+            return params;
+        }
+        //也可以通过如下方法获取表单数据
+        //但表单对应元素必须有name属性
+//        var params=$(".form-horizontal").serialize();
+//        return params;
+</script>
+
+    
+    
+    
+    
+    
+    
+    
